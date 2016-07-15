@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Quiz | Play </title>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <link href="css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/custom.css" rel="stylesheet" />
+    <link href="css/flat-ui.css" rel="stylesheet" />
+
+    <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Cookie' rel='stylesheet' type='text/css'>
+
+
+    <script src="js/vendor/jquery.min.js"></script>
+    <script src="js/flat-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+
+
+    <script>
+        // script for timer
+
+        var seconds = 0,
+            minutes = 0,
+            hours = 0,
+            t;
+
+        function add() {
+            var h1 = document.getElementById('timer');
+            seconds++;
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+                if (minutes >= 60) {
+                    minutes = 0;
+                    hours++;
+                }
+            }
+
+            h1.textContent = (hours ? (hours > 9 ? hours : "0" + hours) : "00") + ":" + (minutes ? (minutes > 9 ? minutes : "0" + minutes) : "00") + ":" + (seconds > 9 ? seconds : "0" + seconds);
+
+            timer();
+        }
+
+        function timer() {
+            t = setTimeout(add, 1000);
+        }
+        timer();
+    </script>
+
+
+    <script>
+        //script for quiz
+
+        var quiz_topic = "Iron Maiden"; // Topic name for Quiz
+        var curr_index = -1;
+        var score = 0; // Saves total score
+        var scores = [] // Saves cumulative score for individual questions
+
+        var questions = [
+
+            {
+                question: "The lead vocalist for Iron Maiden is? ",
+                choices: ["Bruce Dickinson", "Ronnie James Dio", "James Hetfield", "Lemmy Kilmister"],
+                answer: "Bruce Dickinson",
+            }, {
+                question: "_______ can be considered as a value for the attribute 'genre' pertaining to Iron Maiden. ",
+                choices: ["Heavy metal music", "Funk rock", "Black metal", "Alternative rock"],
+                answer: "Heavy metal music",
+            }, {
+                question: "The song Hallowed Be Thy Name featured on which album?",
+                choices: ["Piece of Mind", "The Number of the Beast", "Fear of the Dark", "Iron Maiden"],
+                answer: "The Number of the Beast",
+            }, {
+                question: "The first Iron Maiden album was released in which year?",
+                choices: ["1976", "1982", "1980", "1978"],
+                answer: "1980",
+            }, {
+                question: "Who played drums on the album 'Killers'?",
+                choices: ["Nicko McBrain", "Clive Burr", "Doug Sampson", "Blaze Bayley"],
+                answer: "Clive Burr",
+            }, 
+
+        ]
+        var total = questions.length; // total number of questions
+
+
+        //Following hides the Result graph and shows the first question
+        window.onload = function() {
+            $("#graph").hide(); // hide result graph
+            changeQuestion(); // show first question
+
+        };
+
+
+        // Changes question and option text if questions not exhausted or else shows result graph
+        function changeQuestion() {
+            curr_index++;
+            $('.myb').prop('disabled', false);
+
+
+            if (curr_index >= total) {
+                time_tot = document.getElementById("timer").textContent;
+                var element2 = document.getElementById("canvas");
+                element2.style.display = 'none';
+                showGraph();
+
+            } else {
+
+                var q_obj = questions[curr_index];
+                var q_text = q_obj.question;
+                var opt1 = q_obj.choices[0];
+                var opt2 = q_obj.choices[1];
+                var opt3 = q_obj.choices[2];
+                var opt4 = q_obj.choices[3];
+                document.getElementById("q_id").textContent = 'Question ' + (curr_index + 1) + '/' + total;
+                document.getElementById("score").textContent = 'Score ' + score + '/' + (100 * total);
+                document.getElementById("question_text").textContent = q_text;
+                document.getElementById("option1").textContent = opt1;
+                document.getElementById("option2").textContent = opt2;
+                document.getElementById("option3").textContent = opt3;
+                document.getElementById("option4").textContent = opt4;
+                document.getElementById("resource").value = quiz_topic;
+
+                // Reset the color of option buttons
+                var elements = document.getElementsByClassName('option');
+                for (i = 0; i < elements.length; i++) {
+                    ob = elements[i];
+                    $(ob).removeClass('btn-danger');
+                    $(ob).removeClass('btn-success');
+
+                }
+
+
+            }
+        }
+
+        // Used to check clicked answer and change color to red or green accordingly by adding and removing the respective class.
+        // Also increments scores if necessary
+        function changeColor(obj) {
+            var selected_ans = document.getElementById($(obj).attr('id')).innerHTML;
+            if (selected_ans == questions[curr_index].answer) {
+                $(obj).addClass('btn-success');
+                score += 100;
+            } else {
+                $(obj).addClass('btn-danger');
+                var elements = document.getElementsByClassName('option');
+                for (i = 0; i < elements.length; i++) {
+                    ob = elements[i];
+                    var selected_ans = document.getElementById($(ob).attr('id')).innerHTML;
+
+                    if (selected_ans == questions[curr_index].answer) {
+                        $(ob).addClass('btn-success');
+                    }
+                    $(obj).blur();
+
+                }
+
+            }
+
+            // Gives a transition effect
+            setTimeout(function() {
+                $("#canvas").fadeOut();
+                setTimeout(function() {
+                    $("#canvas").fadeIn("slow", changeQuestion());
+                }, 1000);
+
+            }, 1500);
+
+            scores.push(score); // Add cumulative score to score array
+        }
+    </script>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+      <script src="dist/js/vendor/html5shiv.js"></script>
+      <script src="dist/js/vendor/respond.min.js"></script>
+      <![endif]-->
+</head>
+
+<body style="padding: 0 15px;">
+    <div class="" style="width:100%;">
+
+        <div id="canvas">
+            <div style="height:2px">
+                <div id="particles-js">
+                    <hr class="colorgraph">
+                </div>
+            </div>
+            <div>
+
+                <div id="particles-js" style="position:relative;">
+
+                    <center>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <br>
+                                <img src="http://commons.wikimedia.org/wiki/Special:FilePath/IronMaidencollage2.jpg" class="img-responsive" style="height:150px; width:150px;" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <h3 style="font-family: 'Pacifico', cursive; font-weight:100;" id="resource">Iron Maiden</h3>
+                                <h6 style="font-weight:500;" id="q_id">
+                        Question 3/5</h6>
+
+                                <h4 style="font-weight:500; color:rgb(246, 227, 20)" id="score">
+                          Score: 0</h4>
+                                <br>
+                            </div>
+
+                            <div class="col-md-4">
+                                <br>
+                                <h5>Total time elapsed:</h5>
+
+                                <h5 id="timer" style="color:white"><time>00:00:00</time></h5>
+                            </div>
+
+                        </div>
+
+                        <h4 id="question_text">Question Not Generated</h4>
+                        <br>
+                        <div class="btn-group-justified" style="vertical-align: middle">
+                            <div class="row">
+                                <div class="col-md-4 "></div>
+                                <div class="col-md-2">
+                                    <button id="option1" class="option  btn btn-embossed btn-block btn-hg btn-info" onclick="changeColor(this)">Option Not Generated</button>
+                                    <br>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <button id="option2" class="option btn btn-embossed btn-block btn-hg btn-info" onclick="changeColor(this)">Option Not Generated</button>
+                                    <br>
+                                </div>
+                                <div class="col-md-4 "></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 "></div>
+                                <div class="col-md-2">
+                                    <button id="option3" class="option  btn btn-embossed btn-block btn-hg btn-info" onclick="changeColor(this)">Option Not Generated</button>
+                                    <br>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <button id="option4" class=" option  btn btn-embossed btn-block btn-hg btn-info" onclick="changeColor(this)">Option Not Generated</button>
+                                    <br>
+                                </div>
+                                <div class="col-md-4 ">
+                                </div>
+                            </div>
+
+
+                    </center>
+                    <hr class="colorgraph">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div align="center" id="graph">
+
+            <!-- Below section form is required if you want to save quiz data.. Provide appropriate action URL to backend code which handles the form data -->
+            <!--
+                <form id="quizform" method="post" action="/quiz/save-quiz/">
+                  <input type='hidden' name='csrfmiddlewaretoken' value='V1w1kYZDTc8OgYEhouCxJPADIUAMPB3w' />
+                  <input type="hidden" name="resource2" id="resource2">
+                  <input type="hidden" name="quiz_data" id="quiz_data">
+                  <input type="hidden" name="total_score" id="total_score">
+                  <input type="hidden" name="total_time" id="total_time">
+                  <input type="submit" id="save" name="mysave" style="display:none;">
+
+                </form>
+              -->
+            <center>
+                <h4>Results:</h4></center>
+            <br>
+            <canvas id="income" width="450" height="360"></canvas>
+            <div align="center" id="placeholder"></div>
+        </div>
+
+        <script>
+            function showGraph() {
+                $('#canvas').remove();
+                $("#graph").show();
+                var count_questions = total; //fetch number of questions
+                var labels1 = [];
+                var str = "Q ";
+                for (var i = 0; i < count_questions; i++) {
+                    labels1[i] = str.concat((i + 1).toString());
+                }
+
+                var data = {
+                    labels: labels1,
+                    datasets: [{
+                        label: "My Stats",
+                        fillColor: "rgba(0,0,0,1)",
+                        strokeColor: "rgba(0,128,0,1)",
+                        pointColor: "rgba(256,256,256,1)",
+                        pointStrokeColor: "rgba(256,256,256,1)",
+                        pointHighlightFill: "rgba(256,256,256,1)",
+                        pointHighlightStroke: "rgba(256,256,256,1)",
+                        data: scores
+                    }]
+                };
+
+                var income = document.getElementById("income").getContext("2d");
+                var myLineChart = new Chart(income).Line(data, {
+                    //  scaleOverride : true,
+                    //Boolean - Whether to show horizontal lines (except X axis)
+                    scaleShowHorizontalLines: true,
+
+                    //Boolean - Whether to show vertical lines (except Y axis)
+                    scaleShowVerticalLines: true,
+                    //scaleStartValue: 0 ,
+                    scaleLineColor: "rgba(256,256,256,.1)",
+                    bezierCurve: false
+                });
+                $("#placeholder").html("<br><h4>Total Score: " + score + "/" + (total * 100) + "<br><br>Total Time: " + time_tot + "</h4>");
+
+                // Uncomment this function in order to save quiz
+                //saveQuiz();
+            }
+
+            /*
+            function saveQuiz()
+            {
+              document.getElementById("resource2").value = quiz_topic;
+              document.getElementById("total_score").value = parseFloat(score)*1.0/(parseFloat(total)*(1.0))*1.0;
+              document.getElementById("total_time").value = time_tot;
+              document.getElementById("quiz_data").value = JSON.stringify(questions);
+              $('#quizform').submit();
+
+            }
+
+            */
+        </script>
+    <script src="js/particles-js.js"></script>
+    <script src="js/particles-js-config.js"></script>
+</body>
+
+
+<script>
+    $(document).ready(function() {
+        $("body").css("background-color", "#000000");
+        $("body").css("color", "#ffffff");
+    });
+
+
+    boxes = $('.btn-hg');
+    maxHeight = Math.max.apply(
+        Math, boxes.map(function() {
+            return $(this).height();
+        }).get());
+    boxes.height(maxHeight + 30);
+</script>
+
+<script>
+    // Submits form for quiz saving using AJAX
+
+    /*
+      var frm2 = $('#quizform');
+
+      frm2.submit(function (ev) {
+
+        $.ajax({
+          type: frm2.attr('method'),
+          url: frm2.attr('action'),
+          data: frm2.serialize(),
+          success: function (data) {
+                   //alert('Saved');
+                 }
+               });
+
+        ev.preventDefault();
+      });
+      */
+</script>
+
+</html>
